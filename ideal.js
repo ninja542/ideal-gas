@@ -1,11 +1,12 @@
 
+var fps = 60;
 // calls the callback at about 60 times per second.
 // kinda like setTimeout, but computer optimizes it.
 var animate = window.requestAnimationFrame ||
 	window.webkitRequestAnimationFrame ||
 	window.mozRequestAnimationFrame ||
 	function(callback){
-		window.setTimeout(callback, 1000/60);
+		window.setTimeout(callback, 1000/fps);
 	};
 
 // create the canvas
@@ -15,20 +16,23 @@ var height = 600;
 canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
-var ball = new Ball(200, 300);
-var ball2 = new Ball(100, 200);
+var particles = [];
+for(let i = 0; i < 100; i++){
+	particles.push(new Ball(i*3, i*3));
+}
+// var ball = new Ball(200, 300);
+// var ball2 = new Ball(100, 200);
 
 // update function
 var update = function(){
-	ball.update();
-	ball2.update();
+	particles.forEach(p => p.update());
 };
 
 // render function
 var render = function(){
-	context.clearRect(0, 0, width, height);
-	ball.draw();
-	ball2.draw();
+	particles.forEach(p => context.clearRect(p.x-15, p.y-15, 30, 30));
+	particles.forEach(p => p.draw());
+	// context.clearRect(0, 0, width, height);
 };
 
 // step function, which then calls itself again in a loop.
@@ -41,7 +45,7 @@ var step = function(){
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = 10;
+	this.x_speed = 1;
 	this.y_speed = 3;
 	this.radius = 10;
 }
