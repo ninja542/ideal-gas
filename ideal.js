@@ -1,4 +1,4 @@
-
+// adjustable controls: number of particles, temperature, volume, tracking one particle, boltzman distribution of energy (1/2 mv^2)
 var fps = 60;
 // calls the callback at about 60 times per second.
 // kinda like setTimeout, but computer optimizes it.
@@ -17,11 +17,9 @@ canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
 var particles = [];
-for(let i = 0; i < 100; i++){
-	particles.push(new Ball(i*3, i*3));
+for(let i = 0; i < 5; i++){
+	particles.push(new Ball(i*Math.pow(2, 0.5)*10, i*Math.pow(2, 0.5)*10));
 }
-// var ball = new Ball(200, 300);
-// var ball2 = new Ball(100, 200);
 
 // update function
 var update = function(){
@@ -79,6 +77,14 @@ Ball.prototype.update = function(){
 	else if (bottom_y > height){ // hitting bottom wall
 		this.y = height - this.radius;
 		this.y_speed = -this.y_speed;
+	}
+	for(let i = 0; i<particles.length-1; i++){
+		for(let j = i+1; j<particles.length; j++){
+			if(Math.pow(particles[j].x-particles[i].x, 2)+Math.pow(particles[j].y-particles[i].y, 2)<=401){
+				console.log("collision");
+				// insert collision code here
+			}
+		}
 	}
 };
 
