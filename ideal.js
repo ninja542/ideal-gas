@@ -17,7 +17,7 @@ canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
 var particles = [];
-var particlenum = 2;
+var particlenum = 100;
 for(let i = 0; i < particlenum; i++){
 	particles.push(new Ball(i*Math.pow(2, 0.5)*10, i*Math.pow(2, 0.5)*10));
 }
@@ -25,6 +25,7 @@ for(let i = 0; i < particlenum; i++){
 // update function
 var update = function(){
 	particles.forEach(p => p.update());
+	particles[0].bounce();
 };
 
 // render function
@@ -45,8 +46,8 @@ var step = function(){
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = Math.floor(Math.random()*10);
-	this.y_speed = Math.floor(Math.random()*10);
+	this.x_speed = Math.ceil(Math.random()*5);
+	this.y_speed = Math.ceil(Math.random()*5);
 	this.radius = 10;
 }
 
@@ -80,19 +81,49 @@ Ball.prototype.update = function(){
 		this.y = height - this.radius;
 		this.y_speed = -this.y_speed;
 	}
-	for(let i = 0; i<particles.length-1; i++){
+};
+
+Ball.prototype.bounce = function(){
+	for (let i = 0; i<particles.length; i++){
 		for(let j = i+1; j<particles.length; j++){
-			if(Math.pow(particles[j].x-particles[i].x, 2)+Math.pow(particles[j].y-particles[i].y, 2)<=401){
-				angle1 = Math.atan2(particles[j].y_speed, particles[j].x_speed);
-				angle2 = Math.atan2(particles[i].y_speed, particles[i].x_speed);
-				finang = 0.5 * Math.asin(2/(Math.tan(angle1)+Math.tan(angle2)))
-				console.log(finang);
-				console.log("collision");
+			if(Math.pow(particles[j].x-particles[i].x, 2)+Math.pow(particles[j].y-particles[i].y, 2)<401){
+				// angle1 = Math.atan2(particles[j].y_speed, particles[j].x_speed);
+				// angle2 = Math.atan2(this.y_speed, this.x_speed);
+				// finang = 0.5 * Math.asin(2/(Math.tan(angle1)+Math.tan(angle2)))
+				// this.x_speed = particles[j].x_speed + this.x_speed;
+				a_i_speed = [particles[i].x_speed, particles[i].y_speed];
+				b_i_speed = [particles[j].x_speed, particles[j].y_speed];
+				// if(particles[j].x_speed == 0 || particles[i].x_speed == 0){
+				// 	particles[i].x_speed = b_i_speed[0];
+				// 	particles[j].x_speed = a_i_speed[0];
+				// }
+				// else{
+				// 	particles[i].x_speed += b_i_speed[0];
+				// 	particles[j].x_speed += a_i_speed[0];
+				// 	particles[i].y_speed += b_i_speed[1];
+				// 	particles[j].y_speed += a_i_speed[1];
+				// }
+				// if(particles[j].y_speed == 0 || particles[i].y_speed == 0){
+				// 	particles[i].y_speed = b_i_speed[1];
+				// 	particles[j].y_speed = a_i_speed[1];
+				// }
+				// else {
+				// 	console.log("sad")
+				// }
+				particles[i].x_speed = b_i_speed[0];
+				particles[j].x_speed = a_i_speed[0];
+				particles[i].y_speed = b_i_speed[1];
+				particles[j].y_speed = a_i_speed[1];
+
+				// this.y_speed = particles[j].y_speed;
+				// particles[j].x_speed += this.x_speed;
+				// console.log("collision");
+
 				// insert collision code here
 			}
 		}
 	}
-};
+}
 
 // when webpage is loaded, attach canvas to it. Also calls the step function to animate it.
 window.onload = function(){
