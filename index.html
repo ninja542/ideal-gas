@@ -4,6 +4,28 @@
 		<link href="style.css" rel="stylesheet">
 	</head>
 	<body>
-		<script src="ideal.js"></script>
+		<canvas width="400" height="600" id="canvas"></canvas>
+		<div id="app">
+			<div id="controls">
+			<div>
+				<label> Number of particles: {{particlenum}}</label>
+				<input type="range" min="1" max="200" v-model.number="particlenum">
+			</div>
+			<div>
+				<label> Volume: </label>
+				<input type="range">
+			</div>
+			<div>
+				<label> Temperature: </label>
+				<input type="range">
+			</div>
+			<div>
+				<label> Track one particle? </label>
+				<input type="checkbox">
+			</div>
+			</div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="ideal_vue.js"></script>
 	</body>
 </html>
