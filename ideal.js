@@ -123,7 +123,7 @@ Ball.prototype.bounce = function(){
 			}
 		}
 	}
-}
+};
 
 // when webpage is loaded, attach canvas to it. Also calls the step function to animate it.
 window.onload = function(){
