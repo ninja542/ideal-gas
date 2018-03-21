@@ -4,13 +4,15 @@ var animate = window.requestAnimationFrame ||
 	function(callback){
 		window.setTimeout(callback, 1000/60);
 	};
-
+function randNeg(){
+	return Math.floor(Math.random()*2) == 1 ? 1 : -1;
+}
 // object definition
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = Math.ceil(Math.random()*5);
-	this.y_speed = Math.ceil(Math.random()*5);
+	this.x_speed = Math.ceil(Math.random()*5) * randNeg();
+	this.y_speed = Math.ceil(Math.random()*5) * randNeg();
 	this.radius = 10;
 }
 Ball.prototype.draw = function(){
@@ -78,7 +80,7 @@ var app = new Vue({
 			}
 			else if(this.particlenum > this.particles.length){
 				for(let i = this.particles.length; i < this.particlenum; i++){
-					this.particles.push(new Ball(i*5%width, i*5%height));
+					this.particles.push(new Ball(Math.ceil(Math.random()*width), Math.ceil(Math.random()*height)));
 				}
 			}
 			// this.canvasRender();
@@ -104,7 +106,7 @@ var app = new Vue({
 	},
 	mounted: function(){
 		for(let i = 0; i < this.particlenum; i++){
-			this.particles.push(new Ball(i*5%width, i*5%height));
+			this.particles.push(new Ball(Math.ceil(Math.random()*width), Math.ceil(Math.random()*height)));
 		}
 		this.canvasRender();
 	}
