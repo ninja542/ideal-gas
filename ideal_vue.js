@@ -11,8 +11,8 @@ function randNeg(){
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = Math.ceil(Math.random()*5) * randNeg();
-	this.y_speed = Math.ceil(Math.random()*5) * randNeg();
+	this.x_speed = Math.floor(Math.random()*5) * randNeg();
+	this.y_speed = Math.floor(Math.random()*5) * randNeg();
 	this.radius = 10;
 }
 Ball.prototype.draw = function(){
@@ -32,16 +32,16 @@ Ball.prototype.update = function(){
 		this.x = this.radius;
 		this.x_speed = -this.x_speed;
 	}
-	else if (right_x > width){ // hitting right wall
-		this.x = width - this.radius;
+	else if (right_x > app.width){ // hitting right wall
+		this.x = app.width - this.radius;
 		this.x_speed = -this.x_speed;
 	}
 	else if (top_y < 0){ // hitting top wall
 		this.y = this.radius;
 		this.y_speed = -this.y_speed;
 	}
-	else if (bottom_y > height){ // hitting bottom wall
-		this.y = height - this.radius;
+	else if (bottom_y > app.height){ // hitting bottom wall
+		this.y = app.height - this.radius;
 		this.y_speed = -this.y_speed;
 	}
 };
@@ -71,16 +71,18 @@ var app = new Vue({
 	data: {
 		particlenum: 100,
 		particles: [],
+		width: 400,
+		height: 600,
 	},
 	methods: {
 		adjustParticles: function(){
-			context.clearRect(0, 0, width, height);
+			context.clearRect(0, 0, this.width, this.height);
 			if(this.particlenum < this.particles.length){
 				this.particles.splice(0, this.particles.length - this.particlenum);
 			}
 			else if(this.particlenum > this.particles.length){
 				for(let i = this.particles.length; i < this.particlenum; i++){
-					this.particles.push(new Ball(Math.ceil(Math.random()*width), Math.ceil(Math.random()*height)));
+					this.particles.push(new Ball(Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)));
 				}
 			}
 			// this.canvasRender();
@@ -102,11 +104,19 @@ var app = new Vue({
 	watch: {
 		particlenum: function(){
 			this.adjustParticles();
+		},
+		width: function(){
+			canvas.width = this.width;
+			canvas.style.width = this.width;
+		},
+		height: function(){
+			canvas.height = this.height;
+			canvas.style.height = this.height;
 		}
 	},
 	mounted: function(){
 		for(let i = 0; i < this.particlenum; i++){
-			this.particles.push(new Ball(Math.ceil(Math.random()*width), Math.ceil(Math.random()*height)));
+			this.particles.push(new Ball(Math.floor(Math.random()*width), Math.floor(Math.random()*height)));
 		}
 		this.canvasRender();
 	}
