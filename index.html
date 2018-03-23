@@ -4,7 +4,6 @@
 		<link href="style.css" rel="stylesheet">
 	</head>
 	<body>
-		<canvas width="width" height="height" id="canvas"></canvas>
 		<div id="app">
 			<div id="controls">
 			<div>
@@ -12,8 +11,12 @@
 				<input type="range" min="1" max="200" v-model.number="particlenum">
 			</div>
 			<div>
-				<label> Volume: </label>
-				<input type="range">
+				<label> Height of container: {{height}}</label>
+				<input type="range" v-model.number = "height" min="50" max="800">
+			</div>
+			<div>
+				<label> Width of container: {{width}}</label>
+				<input type="range" v-model.number="width" min="50" max="1000">
 			</div>
 			<div>
 				<label> Temperature: </label>
@@ -25,6 +28,7 @@
 			</div>
 			</div>
 		</div>
+		<canvas width="width" height="height" id="canvas"></canvas>
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 		<script src="ideal_vue.js"></script>
 	</body>
