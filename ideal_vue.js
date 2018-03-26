@@ -7,6 +7,7 @@ var animate = window.requestAnimationFrame ||
 function randNeg(){
 	return Math.floor(Math.random()*2) == 1 ? 1 : -1;
 }
+var radius = 5;
 
 // object definition
 function Ball(x, y){
@@ -14,7 +15,7 @@ function Ball(x, y){
 	this.y = y;
 	this.x_speed = Math.floor(Math.random()*5) * randNeg();
 	this.y_speed = Math.floor(Math.random()*5) * randNeg();
-	this.radius = 10;
+	this.radius = radius;
 }
 Ball.prototype.draw = function(){
 	context.beginPath();
@@ -48,7 +49,7 @@ Ball.prototype.update = function(){
 };
 Ball.prototype.bounce = function(p, i){
 	for (i+1; i<app.particles.length; i++){
-		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2)<401){
+		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2) < (Math.pow(2*radius, 2) +1)){
 			a_i_speed = [app.particles[i].x_speed, app.particles[i].y_speed];
 			b_i_speed = [p.x_speed, p.y_speed];
 			app.particles[i].x_speed = b_i_speed[0];
@@ -81,6 +82,7 @@ var app = new Vue({
 		width: 400,
 		height: 600,
 		track_particle: false,
+		fps: 60,
 	},
 	methods: {
 		adjustParticles: function(){
@@ -100,7 +102,7 @@ var app = new Vue({
 			this.particles.forEach(p => p.draw());
 		},
 		update: function(){
-			this.particles.forEach(p => context.clearRect(p.x-10, p.y-10, 20, 20));
+			this.particles.forEach(p => context.clearRect(p.x-(radius+1), p.y-(radius+1), 2*radius+2, 2*radius+2));
 			this.particles.forEach(p => p.update());
 			this.particles.forEach((p,i) => p.bounce(p, i));
 			if(this.track_particle == true){
@@ -108,7 +110,7 @@ var app = new Vue({
 				context2.arc(this.particles[0].x, this.particles[0].y, 2, 0, 2*Math.PI, false);
 				// context2.fillStyle = "#FF0000";
 				let speed = Math.sqrt(Math.pow(this.particles[0].x_speed, 2)) + Math.pow(this.particles[0].y_speed, 2);
-				context2.fillStyle = colorscale((speed/10 < 1) ? speed/10 : 1);
+				context2.fillStyle = colorscale((speed/8 < 1) ? speed/8 : 1);
 				context2.fill();
 			}
 		},
@@ -116,6 +118,15 @@ var app = new Vue({
 			this.update();
 			this.canvasRender();
 		},
+		animate: function(thing){
+			var animation = window.requestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			function(callback){
+				window.setTimeout(callback, 1000/this.fps);
+			};
+			return animation(thing);
+		}
 	},
 	watch: {
 		particlenum: function(){
@@ -141,7 +152,7 @@ var app = new Vue({
 	},
 	mounted: function(){
 		for(let i = 0; i < this.particlenum; i++){
-			this.particles.push(new Ball(Math.floor(Math.random()*width), Math.floor(Math.random()*height)));
+			this.particles.push(new Ball(20*i, i));
 		}
 		this.canvasRender();
 	},
@@ -149,9 +160,9 @@ var app = new Vue({
 var step = function(){
 	app.update();
 	app.canvasRender();
-	animate(step);
+	app.animate(step);
 };
 
 window.onload = function(){
-	animate(step);
+	app.animate(step);
 };
