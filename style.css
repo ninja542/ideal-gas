@@ -6,3 +6,17 @@ canvas {
 	border-width: 1px;
 	border-color: #000;
 }
+.canvas_container{
+	overflow: visible;
+	position: relative;
+}
+/* #canvas2{
+	position: absolute;
+	top: 0;
+	left: 0;
+} */
+#canvas{
+	position: absolute;
+	top: 0;
+	left: 0;
+}

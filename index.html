@@ -24,12 +24,17 @@
 			</div>
 			<div>
 				<label> Track one particle? </label>
-				<input type="checkbox">
+				<input type="checkbox" v-model="track_particle">
 			</div>
 			</div>
 		</div>
-		<canvas width="width" height="height" id="canvas"></canvas>
+		<div class="canvas_container">
+			<canvas width="width" height="height" id="canvas2"></canvas>
+			<canvas width="width" height="height" id="canvas"></canvas>
+		</div>
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 		<script src="ideal_vue.js"></script>
 	</body>
 </html>
