@@ -1,11 +1,14 @@
-var animate = window.requestAnimationFrame ||
-	window.webkitRequestAnimationFrame ||
-	window.mozRequestAnimationFrame ||
-	function(callback){
-		window.setTimeout(callback, 1000/60);
-	};
+// var animate = window.requestAnimationFrame ||
+// 	window.webkitRequestAnimationFrame ||
+// 	window.mozRequestAnimationFrame ||
+// 	function(callback){
+// 		window.setTimeout(callback, 1000/60);
+// 	};
 function randNeg(){
 	return Math.floor(Math.random()*2) == 1 ? 1 : -1;
+}
+function totalVelocity(x, y){
+	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
 var radius = 5;
 
@@ -23,7 +26,7 @@ Ball.prototype.draw = function(){
 	context.fillStyle = "#0000FF";
 	context.fill();
 };
-Ball.prototype.update = function(){
+Ball.prototype.update = function(heating){
 	this.x += this.x_speed;
 	this.y += this.y_speed;
 	var left_x = this.x - this.radius;
@@ -43,8 +46,25 @@ Ball.prototype.update = function(){
 		this.y_speed = -this.y_speed;
 	}
 	else if (bottom_y > app.height){ // hitting bottom wall
-		this.y = app.height - this.radius;
-		this.y_speed = -this.y_speed;
+		let theta = Math.atan(Math.abs(this.y_speed/this.x_speed));
+		let v_init = totalVelocity(this.x_speed, this.y_speed);
+		if (heating == "cold"){
+			v_init -= 0.5;
+			this.y = app.height - this.radius;
+			this.y_speed = -v_init*Math.sin(theta);
+			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
+		}
+		else if (heating == "hot"){
+			v_init += 0.5;
+			this.y = app.height - this.radius;
+			// this.y_speed = -this.y_speed - 1;
+			this.y_speed = -v_init*Math.sin(theta);
+			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
+		}
+		else {
+			this.y = app.height - this.radius;
+			this.y_speed = -this.y_speed;
+		}
 	}
 };
 Ball.prototype.bounce = function(p, i){
@@ -83,6 +103,28 @@ var app = new Vue({
 		height: 600,
 		track_particle: false,
 		fps: 60,
+		heating: "none",
+	},
+	computed: {
+		plate: function(){
+			if (this.heating == "cold"){
+				/* cold plate */
+				return {borderBottomColor:  "#00CCFF",
+								borderBottomWidth: "4px"};
+			}
+			else if (this.heating == "hot"){
+				/* hot plate */
+				return {borderBottomColor:  "#F00",
+								borderBottomWidth: "4px"};
+			}
+			else {
+				return {borderBottomWidth: "1px"};
+			}
+		},
+		dimension: function(){
+			return {width: this.width,
+							height: this.height};
+		}
 	},
 	methods: {
 		adjustParticles: function(){
@@ -103,13 +145,12 @@ var app = new Vue({
 		},
 		update: function(){
 			this.particles.forEach(p => context.clearRect(p.x-(radius+1), p.y-(radius+1), 2*radius+2, 2*radius+2));
-			this.particles.forEach(p => p.update());
+			this.particles.forEach(p => p.update(this.heating));
 			this.particles.forEach((p,i) => p.bounce(p, i));
 			if(this.track_particle == true){
 				context2.beginPath();
 				context2.arc(this.particles[0].x, this.particles[0].y, 2, 0, 2*Math.PI, false);
-				// context2.fillStyle = "#FF0000";
-				let speed = Math.sqrt(Math.pow(this.particles[0].x_speed, 2)) + Math.pow(this.particles[0].y_speed, 2);
+				let speed = totalVelocity(this.particles[0].x_speed, this.particles[0].y_speed);
 				context2.fillStyle = colorscale((speed/8 < 1) ? speed/8 : 1);
 				context2.fill();
 			}

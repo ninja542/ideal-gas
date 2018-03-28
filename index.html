@@ -19,22 +19,26 @@
 				<input type="range" v-model.number="width" min="50" max="1000">
 			</div>
 			<div>
-				<label> Temperature: </label>
-				<input type="range">
+				<button @mousedown="heating = 'hot'" @mouseup="heating = 'none'">Add Heat</button>
+				<button @mousedown="heating = 'cold'" @mouseup="heating = 'none'">Remove Heat</button>
 			</div>
 			<div>
 				<label> Track one particle? </label>
 				<input type="checkbox" v-model="track_particle">
 			</div>
+			<div>
+				<label> FPS </label>
+				<input type="range" v-model.number="fps" min="1" max="60">
 			</div>
+			</div>
+			<div id="border" v-bind:style="[plate, dimension]"></div>
 		</div>
 		<div class="canvas_container">
-			<canvas width="width" height="height" id="canvas2"></canvas>
 			<canvas width="width" height="height" id="canvas"></canvas>
+			<canvas width="width" height="height" id="canvas2"></canvas>
 		</div>
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 		<script src="https://d3js.org/d3.v4.min.js"></script>
-		<!-- <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> -->
 		<script src="ideal_vue.js"></script>
 	</body>
 </html>
