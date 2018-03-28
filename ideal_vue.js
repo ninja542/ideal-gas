@@ -52,18 +52,19 @@ Ball.prototype.update = function(heating){
 			v_init -= 0.5;
 			this.y = app.height - this.radius;
 			this.y_speed = -v_init*Math.sin(theta);
-			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
 		}
 		else if (heating == "hot"){
 			v_init += 0.5;
 			this.y = app.height - this.radius;
 			// this.y_speed = -this.y_speed - 1;
 			this.y_speed = -v_init*Math.sin(theta);
-			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
 		}
 		else {
 			this.y = app.height - this.radius;
 			this.y_speed = -this.y_speed;
+		}
+		if (this.x_speed != 0){
+			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
 		}
 	}
 };
