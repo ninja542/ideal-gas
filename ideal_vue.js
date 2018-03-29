@@ -1,4 +1,4 @@
-// var animate = window.requestAnimationFrame ||
+// let animate = window.requestAnimationFrame ||
 // 	window.webkitRequestAnimationFrame ||
 // 	window.mozRequestAnimationFrame ||
 // 	function(callback){
@@ -10,7 +10,7 @@ function randNeg(){
 function totalVelocity(x, y){
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
-var radius = 5;
+let radius = 5;
 
 // object definition
 function Ball(x, y){
@@ -29,10 +29,10 @@ Ball.prototype.draw = function(){
 Ball.prototype.update = function(heating){
 	this.x += this.x_speed;
 	this.y += this.y_speed;
-	var left_x = this.x - this.radius;
-	var top_y = this.y - this.radius;
-	var right_x = this.x + this.radius;
-	var bottom_y = this.y + this.radius;
+	let left_x = this.x - this.radius;
+	let top_y = this.y - this.radius;
+	let right_x = this.x + this.radius;
+	let bottom_y = this.y + this.radius;
 	if (left_x < 0){ // hitting left wall
 		this.x = this.radius;
 		this.x_speed = -this.x_speed;
@@ -82,20 +82,20 @@ Ball.prototype.bounce = function(p, i){
 	}
 };
 
-var canvas = document.getElementById("canvas");
-var canvas2 = document.getElementById("canvas2");
-var width = 400;
-var height = 600;
+let canvas = document.getElementById("canvas");
+let canvas2 = document.getElementById("canvas2");
+let width = 400;
+let height = 600;
 canvas.width = width;
 canvas.height = height;
-var context = canvas.getContext('2d');
+let context = canvas.getContext('2d');
 canvas2.width = width;
 canvas2.height = height;
-var context2 = canvas2.getContext('2d');
+let context2 = canvas2.getContext('2d');
 
-let colorscale = d3.scaleSequential(d3.interpolateWarm);
+let colorscale = d3.scaleSequential(d3.interpolateRainbow);
 
-var app = new Vue({
+let app = new Vue({
 	el: "#app",
 	data: {
 		particlenum: 100,
@@ -161,7 +161,7 @@ var app = new Vue({
 			this.canvasRender();
 		},
 		animate: function(thing){
-			var animation = window.requestAnimationFrame ||
+			let animation = window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame ||
 			function(callback){
@@ -199,7 +199,7 @@ var app = new Vue({
 		this.canvasRender();
 	},
 });
-var step = function(){
+let step = function(){
 	app.update();
 	app.canvasRender();
 	app.animate(step);
