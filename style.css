@@ -32,3 +32,6 @@ canvas {
 #key {
 	letter-spacing: 10px
 }
+#controls {
+	width: 300px;
+}

@@ -1,18 +1,37 @@
-// let animate = window.requestAnimationFrame ||
-// 	window.webkitRequestAnimationFrame ||
-// 	window.mozRequestAnimationFrame ||
-// 	function(callback){
-// 		window.setTimeout(callback, 1000/60);
-// 	};
-function randNeg(){
+// average force = (mass*v_xi^2 / (2L_x) + mass*v_yi^2 / (2L_y))
+// pressure = # of particles * Average force / Area
+function randNeg(){ // needed to generate negative sign randomly for more interesting things.
 	return Math.floor(Math.random()*2) == 1 ? 1 : -1;
 }
-function totalVelocity(x, y){
+function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
 let radius = 5;
 
-// object definition
+// object definitions
+function Vector(x, y){
+	this.x = x;
+	this.y = y;
+}
+Vector.prototype.dotProduct = function(vector2){
+	return this.x * vector2.x + this.y * vector2.y;
+};
+Vector.prototype.magnitude = function () {
+	return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+};
+Vector.prototype.scale = function (scaleFactor) {
+	this.x *= scaleFactor;
+	this.y *= scaleFactor;
+};
+Vector.prototype.add = function (vector2) {
+	this.x += vector2.x;
+	this.y += vector2.y;
+};
+Vector.prototype.subtract = function(vector2){
+	this.x -= vector2.x;
+	this.y -= vector2.y;
+};
+
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
@@ -64,20 +83,32 @@ Ball.prototype.update = function(heating){
 			this.y_speed = -this.y_speed;
 		}
 		if (this.x_speed != 0){
-			this.x_speed = (this.x_speed/Math.abs(this.x_speed)) * v_init*Math.cos(theta);
+			this.x_speed = Math.sign(this.x_speed) * v_init*Math.cos(theta);
 		}
 	}
 };
 Ball.prototype.bounce = function(p, i){
 	for (i+1; i<app.particles.length; i++){
 		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2) < (Math.pow(2*radius, 2) +1)){
-			a_i_speed = [app.particles[i].x_speed, app.particles[i].y_speed];
-			b_i_speed = [p.x_speed, p.y_speed];
-			app.particles[i].x_speed = b_i_speed[0];
-			p.x_speed = a_i_speed[0];
-			app.particles[i].y_speed = b_i_speed[1];
-			p.y_speed = a_i_speed[1];
 			// insert collision code here
+			let a_i_speed = new Vector(app.particles[i].x_speed, app.particles[i].y_speed); // second particle
+			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
+			// let collision = new Vector(p.x-app.particles[i].x, p.y-app.particles[i].y);
+			// let tempvector = a_i_speed;
+			// tempvector.subtract(b_i_speed);
+			// let projvector = tempvector.dotProduct(collision);
+			// projvector = projvector / Math.pow(collision.magnitude(), 2);
+			// collision.scale(projvector);
+			// a_i_speed.subtract(collision);
+			// a_i_speed.add(b_i_speed);
+			// let tempbvector = new Vector(0, 0);
+			// tempbvector.add(collision);
+			// tempbvector.add(b_i_speed);
+
+			p.x_speed = a_i_speed.x;
+			p.y_speed = a_i_speed.y;
+			app.particles[i].x_speed = b_i_speed.x;
+			app.particles[i].y_speed = b_i_speed.y;
 		}
 	}
 };
@@ -98,13 +129,14 @@ let colorscale = d3.scaleSequential(d3.interpolateRainbow);
 let app = new Vue({
 	el: "#app",
 	data: {
-		particlenum: 100,
+		particlenum: 10,
 		particles: [],
 		width: 400,
 		height: 600,
 		track_particle: false,
 		fps: 60,
 		heating: "none",
+		lock: false,
 	},
 	computed: {
 		plate: function(){
@@ -194,7 +226,7 @@ let app = new Vue({
 	},
 	mounted: function(){
 		for(let i = 0; i < this.particlenum; i++){
-			this.particles.push(new Ball(20*i, i));
+			this.particles.push(new Ball(20*i, 20*i));
 		}
 		this.canvasRender();
 	},
