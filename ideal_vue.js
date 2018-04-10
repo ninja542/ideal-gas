@@ -89,26 +89,29 @@ Ball.prototype.update = function(heating){
 };
 Ball.prototype.bounce = function(p, i){
 	for (i+1; i<app.particles.length; i++){
-		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2) < (Math.pow(2*radius, 2) +1)){
+		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2) < (Math.pow(2*radius, 2)+0.1)){
 			// insert collision code here
 			let a_i_speed = new Vector(app.particles[i].x_speed, app.particles[i].y_speed); // second particle
 			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
-			// let collision = new Vector(p.x-app.particles[i].x, p.y-app.particles[i].y);
-			// let tempvector = a_i_speed;
-			// tempvector.subtract(b_i_speed);
-			// let projvector = tempvector.dotProduct(collision);
-			// projvector = projvector / Math.pow(collision.magnitude(), 2);
-			// collision.scale(projvector);
-			// a_i_speed.subtract(collision);
-			// a_i_speed.add(b_i_speed);
-			// let tempbvector = new Vector(0, 0);
-			// tempbvector.add(collision);
-			// tempbvector.add(b_i_speed);
+			let collision = new Vector(p.x-app.particles[i].x, p.y-app.particles[i].y);
+			let tempvector = new Vector(app.particles[i].x_speed, app.particles[i].y_speed);
+			tempvector.subtract(b_i_speed);
+			let tempbvector = new Vector(p.x_speed, p.y_speed);
+			tempbvector.subtract(b_i_speed);
 
-			p.x_speed = a_i_speed.x;
-			p.y_speed = a_i_speed.y;
-			app.particles[i].x_speed = b_i_speed.x;
-			app.particles[i].y_speed = b_i_speed.y;
+			let projvector = tempvector.dotProduct(collision);
+			projvector = projvector / Math.pow(collision.magnitude(), 2);
+			collision.scale(projvector);
+
+			tempvector.subtract(collision);
+			tempvector.add(b_i_speed);
+			tempbvector.add(collision);
+			tempbvector.add(b_i_speed);
+
+			p.x_speed = tempbvector.x;
+			p.y_speed = tempbvector.y;
+			app.particles[i].x_speed = a_i_speed.x;
+			app.particles[i].y_speed = a_i_speed.y;
 		}
 	}
 };
