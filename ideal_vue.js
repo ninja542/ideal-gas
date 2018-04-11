@@ -17,7 +17,7 @@ Vector.prototype.dotProduct = function(vector2){
 	return this.x * vector2.x + this.y * vector2.y;
 };
 Vector.prototype.magnitude = function () {
-	return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+	return Math.pow(this.x, 2) + Math.pow(this.y, 2);
 };
 Vector.prototype.scale = function (scaleFactor) {
 	this.x *= scaleFactor;
@@ -35,8 +35,8 @@ Vector.prototype.subtract = function(vector2){
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = Math.floor(Math.random()*5) * randNeg();
-	this.y_speed = Math.floor(Math.random()*5) * randNeg();
+	this.x_speed = Math.floor(Math.random()*3) * randNeg();
+	this.y_speed = Math.floor(Math.random()*3) * randNeg();
 	this.radius = radius;
 }
 Ball.prototype.draw = function(){
@@ -88,30 +88,26 @@ Ball.prototype.update = function(heating){
 	}
 };
 Ball.prototype.bounce = function(p, i){
-	for (i+1; i<app.particles.length; i++){
-		if(Math.pow(p.x-app.particles[i].x, 2)+Math.pow(p.y-app.particles[i].y, 2) < (Math.pow(2*radius, 2)+0.1)){
+	for (i; i<app.particles.length-1; i++){
+		if(Math.pow(p.x-app.particles[i+1].x, 2)+Math.pow(p.y-app.particles[i+1].y, 2) < (Math.pow(2*radius, 2)+0.1)){
 			// insert collision code here
-			let a_i_speed = new Vector(app.particles[i].x_speed, app.particles[i].y_speed); // second particle
+			let a_i_speed = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // second particle
 			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
-			let collision = new Vector(p.x-app.particles[i].x, p.y-app.particles[i].y);
-			let tempvector = new Vector(app.particles[i].x_speed, app.particles[i].y_speed);
+			let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
+			let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed);
 			tempvector.subtract(b_i_speed);
-			let tempbvector = new Vector(p.x_speed, p.y_speed);
-			tempbvector.subtract(b_i_speed);
 
 			let projvector = tempvector.dotProduct(collision);
-			projvector = projvector / Math.pow(collision.magnitude(), 2);
+			projvector = projvector / collision.magnitude();
 			collision.scale(projvector);
 
-			tempvector.subtract(collision);
-			tempvector.add(b_i_speed);
-			tempbvector.add(collision);
-			tempbvector.add(b_i_speed);
+			b_i_speed.add(collision);
+			a_i_speed.subtract(collision);
 
-			p.x_speed = tempbvector.x;
-			p.y_speed = tempbvector.y;
-			app.particles[i].x_speed = a_i_speed.x;
-			app.particles[i].y_speed = a_i_speed.y;
+			p.x_speed = b_i_speed.x;
+			p.y_speed = b_i_speed.y;
+			app.particles[i+1].x_speed = a_i_speed.x;
+			app.particles[i+1].y_speed = a_i_speed.y;
 		}
 	}
 };
@@ -132,7 +128,7 @@ let colorscale = d3.scaleSequential(d3.interpolateRainbow);
 let app = new Vue({
 	el: "#app",
 	data: {
-		particlenum: 10,
+		particlenum: 2,
 		particles: [],
 		width: 400,
 		height: 600,
