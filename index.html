@@ -42,15 +42,17 @@
 			</div>
 		</div>
 		<div id="border" v-bind:style="[plate, dimension]"></div>
+		<div class="graph">
+			<p> {{measuredTemp}} Kelvin</p>
+		</div>
 		</div>
 		<div class="canvas_container">
 			<canvas width="width" height="height" id="canvas"></canvas>
 			<canvas width="width" height="height" id="canvas2"></canvas>
 		</div>
-		<div class="graph">
-		</div>
 		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 		<script src="https://d3js.org/d3.v4.min.js"></script>
-		<script src="ideal_compressed.js"></script>
+		<!-- <script src="ideal_compressed.js"></script> -->
+		<script src="ideal_vue.js"></script>
 	</body>
 </html>

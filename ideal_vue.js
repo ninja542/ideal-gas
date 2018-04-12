@@ -1,6 +1,12 @@
 // self notes for later math implementation
 // average force = (mass*v_xi^2 / (2L_x) + mass*v_yi^2 / (2L_y))
 // pressure = # of particles * Average force / Area, can't know force because we don't know the time that the force acts over, but we might be able to approximate with the x_speed/y_speed
+/* Maxwell Boltzman graph:
+	P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT);
+*/
+// avg KE = 1.5 * k * Temperature
+
+// m = 1
 
 // variable definitions here
 // d3 things here:
@@ -115,11 +121,12 @@ Ball.prototype.bounce = function(p, i){
 			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
 			let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
 			let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
-			tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
 
+			tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
 			let projvector = tempvector.dotProduct(collision);
 			projvector = projvector / collision.magnitude();
 			collision.scale(projvector);
+
 			/* LONG MATH EXPLANATION
 			Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
 			After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
@@ -170,6 +177,13 @@ let app = new Vue({
 		dimension: function(){ // needed to make sure that canvas/the border changes size
 			return {width: this.width,
 							height: this.height};
+		},
+		measuredTemp: function(){
+			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(totalVelocity(amount.x_speed, amount.y_speed),2)* 7.64e-22, 0);
+			let k = 8.314 / 6.02e+23;
+			let averageKE = totalKE / this.particles.length;
+			let temperature = averageKE / (1.5 * k);
+			return temperature;
 		}
 	},
 	methods: {
