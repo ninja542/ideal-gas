@@ -35,3 +35,8 @@ canvas {
 #controls {
 	width: 300px;
 }
+.graph {
+	top: 0px;
+	left: 720px;
+	position: absolute;
+}
