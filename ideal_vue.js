@@ -2,18 +2,17 @@
 // average force = (mass*v_xi^2 / (2L_x) + mass*v_yi^2 / (2L_y))
 // pressure = # of particles * Average force / Area, can't know force because we don't know the time that the force acts over, but we might be able to approximate with the x_speed/y_speed
 /* Maxwell Boltzman graph:
-	P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT);
-*/
+	P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT); */
 // avg KE = 1.5 * k * Temperature
 
 // m = 1
 
 // variable definitions here
 // d3 things here:
-var margin = { top: 10, right: 10, bottom: 10, left: 10 },
-    graphwidth = 960 - margin.left - margin.right,
-    graphheight = 640 - margin.top - margin.bottom;
-var svg = d3.select('.graph').append('svg')
+let margin = { top: 10, right: 10, bottom: 10, left: 10 },
+    graphwidth = 400 - margin.left - margin.right,
+    graphheight = 650 - margin.top - margin.bottom;
+let svg = d3.select('.graph').append('svg')
     .attr('width', graphwidth + margin.left + margin.right)
     .attr('height', graphheight + margin.top + margin.bottom)
   .append('g')
@@ -32,6 +31,7 @@ canvas2.height = height;
 let context2 = canvas2.getContext('2d');
 // for easier change later
 let radius = 5;
+let mass = 1e-21;
 
 // object definitions
 function Vector(x, y){
@@ -116,31 +116,40 @@ Ball.prototype.update = function(heating){
 // separate function so that the particles can check for bouncing after the update, also it was easier to separate updating and bouncing from each other for better coding.
 Ball.prototype.bounce = function(p, i){
 	for (i; i<app.particles.length-1; i++){
-		if(Math.pow(p.x-app.particles[i+1].x, 2)+Math.pow(p.y-app.particles[i+1].y, 2) < (Math.pow(2*radius, 2)+0.1)){ // no Math.sqrt to save computing power, checks if particles are touching. [i+1] is included so that if there is no valid particle at [i+1] it will not be counted, unlike before where i+1 was in the for loop, and caused strange problems where vectors would become undefined
+		if (Math.pow(p.x-app.particles[i+1].x, 2)+Math.pow(p.y-app.particles[i+1].y, 2) < (Math.pow(2*radius, 2)+0.1)){ // no Math.sqrt to save computing power, checks if particles are touching. [i+1] is included so that if there is no valid particle at [i+1] it will not be counted, unlike before where i+1 was in the for loop, and caused strange problems where vectors would become undefined
+			// still has weird bumping behavior when particles are cooled a lot
 			let a_i_speed = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // second particle
 			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
-			let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
-			let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
-
-			tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
-			let projvector = tempvector.dotProduct(collision);
-			projvector = projvector / collision.magnitude();
-			collision.scale(projvector);
-
-			/* LONG MATH EXPLANATION
-			Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
-			After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
-			Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
-			Which is what happens in the next two lines */
-
-			b_i_speed.add(collision);
-			a_i_speed.subtract(collision);
-
-			// setting the speeds of the particles after doing too much math
-			p.x_speed = b_i_speed.x;
-			p.y_speed = b_i_speed.y;
-			app.particles[i+1].x_speed = a_i_speed.x;
-			app.particles[i+1].y_speed = a_i_speed.y;
+			if (p.x_speed == 0 && app.particles[i+1].x_speed == 0){
+				// vertical bumping head on
+				p.y_speed = a_i_speed.y;
+				app.particles[i+1].y_speed = b_i_speed.y;
+			}
+			else if (p.y_speed == 0 && app.particles[i+1].y_speed ==0){
+				// horizontal bumping head on
+				p.x_speed = a_i_speed.x;
+				app.particles[i+1].x_speed = b_i_speed.x;
+			}
+			else {
+				let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
+				let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
+				tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
+				let projvector = tempvector.dotProduct(collision);
+				projvector = projvector / collision.magnitude();
+				collision.scale(projvector);
+				/* LONG MATH EXPLANATION
+				Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
+				After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
+				Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
+				Which is what happens in the next two lines */
+				b_i_speed.add(collision);
+				a_i_speed.subtract(collision);
+				// setting the speeds of the particles after doing too much math
+				p.x_speed = b_i_speed.x;
+				p.y_speed = b_i_speed.y;
+				app.particles[i+1].x_speed = a_i_speed.x;
+				app.particles[i+1].y_speed = a_i_speed.y;
+			}
 		}
 	}
 };
@@ -179,7 +188,7 @@ let app = new Vue({
 							height: this.height};
 		},
 		measuredTemp: function(){
-			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(totalVelocity(amount.x_speed, amount.y_speed),2)* 7.64e-22, 0);
+			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(totalVelocity(amount.x_speed, amount.y_speed), 2) * mass, 0);
 			let k = 8.314 / 6.02e+23;
 			let averageKE = totalKE / this.particles.length;
 			let temperature = averageKE / (1.5 * k);
@@ -224,7 +233,7 @@ let app = new Vue({
 			this.canvasRender();
 		},
 		animate: function(thing){
-			// animation frame is more native and it allows for the animation to stop when focus is on another area
+			// animation frame is  native and it allows for the animation to stop when focus is on another area
 			let animation = window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame ||
@@ -280,7 +289,6 @@ window.onload = function(){
 	app.animate(step);
 };
 
-// putting function definitions at the end
 function randNeg(){ // needed to generate negative sign randomly for more interesting things.
 	return Math.floor(Math.random()*2) == 1 ? 1 : -1;
 }
