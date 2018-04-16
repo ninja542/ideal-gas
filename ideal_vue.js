@@ -202,9 +202,7 @@ let app = new Vue({
 			return temperature;
 		},
 		measuredPressure: function(){
-			let xForce = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(amount.x_speed), 2)))/this.width, 0);
-			let yForce = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(amount.y_speed), 2)))/this.height, 0);
-			let totalPressure = xForce / 2 * this.width + yForce / 2 * this.height;
+			let totalPressure = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2)))/(this.width * this.height), 0);
 			return totalPressure;
 		}
 	},

@@ -47,8 +47,8 @@
 		</div>
 		<div id="border" v-bind:style="[plate, dimension]"></div>
 		<div class="graph">
-			<p> {{measuredTemp}} Kelvin </p>
-			<p> {{measuredPressure}} Pascals </p>
+			<p> {{measuredTemp.toFixed(2)}} Kelvin </p>
+			<p> {{measuredPressure.toPrecision(4)}} Pascals </p>
 		</div>
 		</div>
 		<div class="canvas_container">
