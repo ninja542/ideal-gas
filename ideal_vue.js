@@ -32,6 +32,7 @@ let context2 = canvas2.getContext('2d');
 // for easier change later
 let radius = 5;
 let mass = 1e-21;
+let scalefactor = 1;
 
 // object definitions
 function Vector(x, y){
@@ -94,9 +95,15 @@ Ball.prototype.update = function(heating){
 		let theta = Math.atan(Math.abs(this.y_speed/this.x_speed)); // theta variable to ensure that particles still hit the bottom with the same angle as before, but faster
 		let v_init = totalVelocity(this.x_speed, this.y_speed); // initial velocity so that the y_speed can be increased by the correct amount to keep the angle
 		if (heating == "cold"){
-			v_init -= 0.5;
-			this.y = app.height - this.radius;
-			this.y_speed = -v_init*Math.sin(theta);
+			if (this.y_speed < 0.1) {
+				this.y = app.height - this.radius;
+				this.x_speed = 0;
+			}
+			else {
+				v_init -= 0.5;
+				this.y = app.height - this.radius;
+				this.y_speed = -v_init*Math.sin(theta);
+			}
 		}
 		else if (heating == "hot"){
 			v_init += 0.5;
@@ -188,11 +195,17 @@ let app = new Vue({
 							height: this.height};
 		},
 		measuredTemp: function(){
-			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(totalVelocity(amount.x_speed, amount.y_speed), 2) * mass, 0);
+			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2) * mass, 0);
 			let k = 8.314 / 6.02e+23;
 			let averageKE = totalKE / this.particles.length;
 			let temperature = averageKE / (1.5 * k);
 			return temperature;
+		},
+		measuredPressure: function(){
+			let xForce = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(amount.x_speed), 2)))/this.width, 0);
+			let yForce = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(amount.y_speed), 2)))/this.height, 0);
+			let totalPressure = xForce / 2 * this.width + yForce / 2 * this.height;
+			return totalPressure;
 		}
 	},
 	methods: {
@@ -294,4 +307,7 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 }
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+}
+function scaleVel(vel){
+	return vel * scalefactor;
 }
