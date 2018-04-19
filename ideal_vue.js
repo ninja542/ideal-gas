@@ -1,17 +1,15 @@
 // self notes for later math implementation
 // average force = (mass*v_xi^2 / (2L_x) + mass*v_yi^2 / (2L_y))
 // pressure = # of particles * Average force / Area, can't know force because we don't know the time that the force acts over, but we might be able to approximate with the x_speed/y_speed
-/* Maxwell Boltzman graph:
-	P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT); */
 // avg KE = 1.5 * k * Temperature
 
 // m = 1
 
 // variable definitions here
 // d3 things here:
-let margin = { top: 10, right: 10, bottom: 10, left: 10 },
-    graphwidth = 400 - margin.left - margin.right,
-    graphheight = 650 - margin.top - margin.bottom;
+let margin = { top: 10, right: 0, bottom: 20, left: 30 },
+    graphwidth = 600 - margin.left - margin.right,
+    graphheight = 590 - margin.top - margin.bottom;
 let svg = d3.select('.graph').append('svg')
     .attr('width', graphwidth + margin.left + margin.right)
     .attr('height', graphheight + margin.top + margin.bottom)
@@ -29,10 +27,20 @@ let context = canvas.getContext('2d');
 canvas2.width = width;
 canvas2.height = height;
 let context2 = canvas2.getContext('2d');
-// for easier change later
-let radius = 5;
-let mass = 1e-21;
-let scalefactor = 1;
+// constants for easier change later
+const radius = 5;
+const mass = 1e-21;
+const scalefactor = 1;
+const R = 8.314;
+const k = R / 6.02e+23;
+
+// d3 stuff
+let xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
+let xAxis = d3.axisBottom(xScale);
+let yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
+let yAxis = d3.axisLeft(yScale);
+svg.append("g").call(yAxis);
+svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")");
 
 // object definitions
 function Vector(x, y){
@@ -196,7 +204,6 @@ let app = new Vue({
 		},
 		measuredTemp: function(){
 			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2) * mass, 0);
-			let k = 8.314 / 6.02e+23;
 			let averageKE = totalKE / this.particles.length;
 			let temperature = averageKE / (1.5 * k);
 			return temperature;
@@ -255,6 +262,16 @@ let app = new Vue({
 		},
 		sortData: function(){
 			let sortedData = [];
+		},
+		maxwellDist: function(velocity){
+			/* Maxwell Boltzman graph:
+				P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT); */
+			let probability = 4 * Math.PI * Math.pow((mass / (2 * Math.PI * k * this.measuredTemp)), 1.5) * Math.pow(velocity, 2) * Math.pow(Math.E, (-(mass * Math.pow(velocity, 2)) / (2 * k * this.measuredTemp)));
+			console.log(probability);
+			return probability;
+		},
+		updateGraph: function(){
+
 		}
 	},
 	watch: {
