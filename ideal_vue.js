@@ -1,16 +1,9 @@
-// self notes for later math implementation
-// average force = (mass*v_xi^2 / (2L_x) + mass*v_yi^2 / (2L_y))
-// pressure = # of particles * Average force / Area, can't know force because we don't know the time that the force acts over, but we might be able to approximate with the x_speed/y_speed
-// avg KE = 1.5 * k * Temperature
-
-// m = 1
-
 // variable definitions here
 // d3 things here:
 let margin = { top: 10, right: 0, bottom: 20, left: 30 },
     graphwidth = 600 - margin.left - margin.right,
     graphheight = 590 - margin.top - margin.bottom;
-let svg = d3.select('.graph').append('svg')
+var svg = d3.select('.graph').append('svg')
     .attr('width', graphwidth + margin.left + margin.right)
     .attr('height', graphheight + margin.top + margin.bottom)
   .append('g')
@@ -33,14 +26,17 @@ const mass = 1e-21;
 const scalefactor = 1;
 const R = 8.314;
 const k = R / 6.02e+23;
+let numberList = Array.from(Array(501).keys());
+let velocityList = numberList.map((element) => {return element/100;});
 
 // d3 stuff
-let xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
-let xAxis = d3.axisBottom(xScale);
-let yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
-let yAxis = d3.axisLeft(yScale);
+var xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
+var xAxis = d3.axisBottom(xScale);
+var yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
+var yAxis = d3.axisLeft(yScale);
 svg.append("g").call(yAxis);
 svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")");
+svg.append("path").attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
 
 // object definitions
 function Vector(x, y){
@@ -264,14 +260,16 @@ let app = new Vue({
 			let sortedData = [];
 		},
 		maxwellDist: function(velocity){
-			/* Maxwell Boltzman graph:
-				P(v) = 4*pi*(M/(2*pi*R*T))^(3/2) * v^2 * e^((Mv^2)/2*RT); */
+			/* Maxwell Boltzman graph: */
 			let probability = 4 * Math.PI * Math.pow((mass / (2 * Math.PI * k * this.measuredTemp)), 1.5) * Math.pow(velocity, 2) * Math.pow(Math.E, (-(mass * Math.pow(velocity, 2)) / (2 * k * this.measuredTemp)));
-			console.log(probability);
 			return probability;
 		},
 		updateGraph: function(){
-
+			let maxwell = (d) => this.maxwellDist(d);
+			let line = d3.line()
+				.x(function(d){return xScale(d);})
+				.y(function(d){return yScale(app.maxwellDist(d));});
+			d3.select(".probability").attr("d", line(velocityList));
 		}
 	},
 	watch: {
@@ -295,6 +293,9 @@ let app = new Vue({
 		},
 		track_particle: function(){ // pressing the track_particle checkbox erases the current board, provides easy erase function without having an erase button
 			context2.clearRect(0, 0, this.width, this.height);
+		},
+		measuredTemp: function(){
+			this.updateGraph();
 		}
 	},
 	mounted: function(){
@@ -304,6 +305,13 @@ let app = new Vue({
 		this.canvasRender();
 	},
 });
+console.log(app.maxwellDist(0.2));
+let maxwell = (d) => app.maxwellDist(d);
+// maxwell distribution graph initialization
+let graphLine = d3.line()
+	.x(function(d){return xScale(d);})
+	.y(function(d){return yScale(maxwell(d));});
+// svg.append("path").attr("d", graphLine(velocityList)).attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
 
 // separate step function needed, not sure why, but it doesn't work inside of vue object
 let step = function(){
