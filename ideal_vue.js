@@ -131,36 +131,24 @@ Ball.prototype.bounce = function(p, i){
 			// still has weird bumping behavior when particles are cooled a lot
 			let a_i_speed = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // second particle
 			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
-			if (p.x_speed == 0 && app.particles[i+1].x_speed == 0){
-				// vertical bumping head on
-				p.y_speed = a_i_speed.y;
-				app.particles[i+1].y_speed = b_i_speed.y;
-			}
-			else if (p.y_speed == 0 && app.particles[i+1].y_speed ==0){
-				// horizontal bumping head on
-				p.x_speed = a_i_speed.x;
-				app.particles[i+1].x_speed = b_i_speed.x;
-			}
-			else {
-				let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
-				let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
-				tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
-				let projvector = tempvector.dotProduct(collision);
-				projvector = projvector / collision.magnitude();
-				collision.scale(projvector);
-				/* LONG MATH EXPLANATION
-				Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
-				After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
-				Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
-				Which is what happens in the next two lines */
-				b_i_speed.add(collision);
-				a_i_speed.subtract(collision);
-				// setting the speeds of the particles after doing too much math
-				p.x_speed = b_i_speed.x;
-				p.y_speed = b_i_speed.y;
-				app.particles[i+1].x_speed = a_i_speed.x;
-				app.particles[i+1].y_speed = a_i_speed.y;
-			}
+			let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
+			let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
+			tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
+			let projvector = tempvector.dotProduct(collision);
+			projvector = projvector / collision.magnitude();
+			collision.scale(projvector);
+			/* LONG MATH EXPLANATION
+			Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
+			After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
+			Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
+			Which is what happens in the next two lines */
+			b_i_speed.add(collision);
+			a_i_speed.subtract(collision);
+			// setting the speeds of the particles after doing too much math
+			p.x_speed = b_i_speed.x;
+			p.y_speed = b_i_speed.y;
+			app.particles[i+1].x_speed = a_i_speed.x;
+			app.particles[i+1].y_speed = a_i_speed.y;
 		}
 	}
 };
