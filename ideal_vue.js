@@ -190,7 +190,7 @@ let app = new Vue({
 			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2) * mass, 0);
 			let averageKE = totalKE / this.particles.length;
 			let temperature = averageKE / (1.5 * k);
-			return temperature.toFixed(4);
+			return temperature;
 		},
 		measuredPressure: function(){
 			let totalPressure = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2)))/(this.width * this.height), 0);
