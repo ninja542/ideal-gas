@@ -1,6 +1,6 @@
 // variable definitions here
 // d3 things here:
-let margin = { top: 10, right: 0, bottom: 20, left: 30 },
+let margin = { top: 10, right: 10, bottom: 20, left: 30 },
     graphwidth = 600 - margin.left - margin.right,
     graphheight = 590 - margin.top - margin.bottom;
 var svg = d3.select('.graph').append('svg')
@@ -23,11 +23,8 @@ let context2 = canvas2.getContext('2d');
 // constants for easier change later
 const radius = 5;
 const mass = 1e-21;
-const scalefactor = 1;
 const R = 8.314;
 const k = R / 6.02e+23;
-let numberList = Array.from(Array(501).keys());
-let velocityList = numberList.map((element) => {return element/100;});
 
 // d3 stuff
 var xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
@@ -35,8 +32,9 @@ var xAxis = d3.axisBottom(xScale);
 var yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
 var yAxis = d3.axisLeft(yScale);
 svg.append("g").call(yAxis);
-svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")");
+svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")").attr("class", "xAxis");
 svg.append("path").attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
+svg.append("rect").attr("fill", "red").attr("class", "velocity").attr("width", 1).attr("visibility", "hidden");
 
 // object definitions
 function Vector(x, y){
@@ -66,8 +64,8 @@ Vector.prototype.subtract = function(vector2){
 function Ball(x, y){
 	this.x = x;
 	this.y = y;
-	this.x_speed = Math.random()*3 * randNeg();
-	this.y_speed = Math.random()*3 * randNeg();
+	this.x_speed = Math.random() * 3 * randNeg();
+	this.y_speed = Math.random() * 3 * randNeg();
 	this.radius = radius;
 }
 Ball.prototype.draw = function(){
@@ -120,7 +118,7 @@ Ball.prototype.update = function(heating){
 			this.y_speed = -this.y_speed;
 		}
 		if (this.x_speed != 0){ // to make sure that particles do not disappear from a undefined atan
-			this.x_speed = Math.sign(this.x_speed) * v_init*Math.cos(theta);
+			this.x_speed = Math.sign(this.x_speed) * v_init * Math.cos(theta);
 		}
 	}
 };
@@ -187,15 +185,19 @@ let app = new Vue({
 							height: this.height};
 		},
 		measuredTemp: function(){
-			let totalKE = this.particles.reduce((total, amount) => total + 0.5 * Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2) * mass, 0);
+			let totalKE = this.totalVelList.reduce((total, amount) => total + 0.5 * Math.pow(amount, 2) * mass, 0);
 			let averageKE = totalKE / this.particles.length;
 			let temperature = averageKE / (1.5 * k);
 			return temperature;
 		},
 		measuredPressure: function(){
-			let totalPressure = this.particles.reduce((total, amount) => total + (mass * (Math.pow(scaleVel(totalVelocity(amount.x_speed, amount.y_speed)), 2)))/(this.width * this.height), 0);
+			let totalPressure = this.totalVelList.reduce((total, amount) => total + (mass * (Math.pow(amount, 2)))/(this.width * this.height), 0);
 			return totalPressure;
-		}
+		},
+		totalVelList: function(){
+			let newMap = this.particles.map((item) => totalVelocity(item.x_speed, item.y_speed));
+			return newMap;
+		},
 	},
 	methods: {
 		adjustParticles: function(){
@@ -214,6 +216,7 @@ let app = new Vue({
 			this.particles.forEach(p => p.draw());
 		},
 		update: function(){
+			tempxScale = this.xScale();
 			// clears the rectangle that the particle currently occupies. Supposed to save more computing power
 			// uses radius variable to ensure future changeability, could also potentially be linked in vue to mass and stuff to provide more variables to change
 			this.particles.forEach(p => context.clearRect(p.x-(radius+1), p.y-(radius+1), 2*radius+2, 2*radius+2));
@@ -228,6 +231,11 @@ let app = new Vue({
 				// if speed/8 is less than 1, then the color scale will fit, and will return speed/8, otherwise if it's going to fast, it just returns 1 (purple) instead to prevent errors in the trail
 				context2.fillStyle = colorscale((speed/8 < 1) ? speed/8 : 1);
 				context2.fill();
+				let height = this.maxwellDist(speed);
+				d3.select(".velocity").attr("height", yScale(1-this.maxwellDist(speed))).attr("x", tempxScale(speed)).attr("y", yScale(height)).attr("visibility", "visible");
+			}
+			else {
+				d3.select(".velocity").attr("visibility", "hidden");
 			}
 		},
 		step: function(){
@@ -252,10 +260,32 @@ let app = new Vue({
 			let probability = 4 * Math.PI * Math.pow((mass / (2 * Math.PI * k * this.measuredTemp)), 1.5) * Math.pow(velocity, 2) * Math.pow(Math.E, (-(mass * Math.pow(velocity, 2)) / (2 * k * this.measuredTemp)));
 			return probability;
 		},
+		maxSpeed: function(){
+			let maxspeed = 5;
+			if(this.measuredTemp < 100){
+				maxspeed = 5;
+			}
+			else if(this.measuredTemp < 400){
+				maxspeed = 10;
+			}
+			else if(this.measuredTemp < 1000){
+				maxspeed = 15;
+			}
+			else{
+				maxspeed = 20;
+			}
+			return maxspeed;
+		},
+		xScale: function(){
+			return d3.scaleLinear().domain([0, this.maxSpeed()]).range([0, graphwidth]);
+		},
 		updateGraph: function(){
-			let maxwell = (d) => this.maxwellDist(d);
+			let numberList = Array.from(Array(this.maxSpeed() * 100 + 1).keys());
+			let velocityList = numberList.map((element) => {return element/100;});
+			let tempxScale = this.xScale();
+			d3.select(".xAxis").call(d3.axisBottom(tempxScale));
 			let line = d3.line()
-				.x(function(d){return xScale(d);})
+				.x(function(d){return tempxScale(d);})
 				.y(function(d){return yScale(app.maxwellDist(d));});
 			d3.select(".probability").attr("d", line(velocityList));
 		}
@@ -293,13 +323,6 @@ let app = new Vue({
 		this.canvasRender();
 	},
 });
-console.log(app.maxwellDist(0.2));
-let maxwell = (d) => app.maxwellDist(d);
-// maxwell distribution graph initialization
-let graphLine = d3.line()
-	.x(function(d){return xScale(d);})
-	.y(function(d){return yScale(maxwell(d));});
-// svg.append("path").attr("d", graphLine(velocityList)).attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
 
 // separate step function needed, not sure why, but it doesn't work inside of vue object
 let step = function(){
@@ -318,7 +341,4 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 }
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-}
-function scaleVel(vel){
-	return vel * scalefactor;
 }
