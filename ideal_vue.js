@@ -231,8 +231,8 @@ let app = new Vue({
 				// if speed/8 is less than 1, then the color scale will fit, and will return speed/8, otherwise if it's going to fast, it just returns 1 (purple) instead to prevent errors in the trail
 				context2.fillStyle = colorscale((speed/8 < 1) ? speed/8 : 1);
 				context2.fill();
-				let height = this.maxwellDist(speed);
-				d3.select(".velocity").attr("height", yScale(1-this.maxwellDist(speed))).attr("x", tempxScale(speed)).attr("y", yScale(height)).attr("visibility", "visible");
+				let newheight = this.maxwellDist(speed);
+				d3.select(".velocity").attr("height", yScale(1-this.maxwellDist(speed))).attr("x", tempxScale(speed)).attr("y", yScale(newheight)).attr("visibility", "visible");
 			}
 			else {
 				d3.select(".velocity").attr("visibility", "hidden");
@@ -341,4 +341,7 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 }
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+}
+function placeParticles(){
+
 }
