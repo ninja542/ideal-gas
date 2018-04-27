@@ -155,7 +155,7 @@ Ball.prototype.bounce = function(p, i){
 let app = new Vue({
 	el: "#app",
 	data: {
-		particlenum: 50,
+		particlenum: 20,
 		particles: [],
 		width: 400,
 		height: 600,
@@ -280,8 +280,8 @@ let app = new Vue({
 			return d3.scaleLinear().domain([0, this.maxSpeed()]).range([0, graphwidth]);
 		},
 		updateGraph: function(){
-			let numberList = Array.from(Array(this.maxSpeed() * 100 + 1).keys());
-			let velocityList = numberList.map((element) => {return element/100;});
+			let numberList = Array.from(Array(this.maxSpeed() * 50 + 1).keys());
+			let velocityList = numberList.map((element) => {return element/50;});
 			let tempxScale = this.xScale();
 			d3.select(".xAxis").call(d3.axisBottom(tempxScale));
 			let line = d3.line()
