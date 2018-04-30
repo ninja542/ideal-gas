@@ -35,8 +35,8 @@ svg.append("g").call(yAxis);
 svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")").attr("class", "xAxis");
 svg.append("path").attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
 svg.append("rect").attr("fill", "red").attr("class", "velocity").attr("width", 1).attr("visibility", "hidden");
-svg.append("text").attr("text-anchor", "middle").attr("transform", "translate("+ (-margin.left+10) +","+(height/2)+")rotate(-90)").text("Probability");
-svg.append("text").attr("text-anchor", "middle").attr("transform", "translate(" + (width) + ", " + (height/2) + ")rotate(-90)").text("Velocity of Particle");
+svg.append("text").attr("text-anchor", "middle").attr("transform", "translate("+ (-margin.left+10) +","+(graphheight/2)+")rotate(-90)").text("Probability");
+svg.append("text").attr("text-anchor", "middle").attr("transform", "translate(" + (graphwidth) + ", " + (graphheight/2) + ")rotate(-90)").text("Velocity of Particle");
 
 // object definitions
 function Vector(x, y){
