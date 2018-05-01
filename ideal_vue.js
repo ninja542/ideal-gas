@@ -99,15 +99,9 @@ Ball.prototype.update = function(heating){
 		let theta = Math.atan(Math.abs(this.y_speed/this.x_speed)); // theta variable to ensure that particles still hit the bottom with the same angle as before, but faster
 		let v_init = totalVelocity(this.x_speed, this.y_speed); // initial velocity so that the y_speed can be increased by the correct amount to keep the angle
 		if (heating == "cold"){
-			if (this.y_speed < 0.1) {
-				this.y = app.height - this.radius;
-				this.x_speed = 0;
-			}
-			else {
-				v_init -= 0.5;
-				this.y = app.height - this.radius;
-				this.y_speed = -v_init*Math.sin(theta);
-			}
+			v_init -= 0.5;
+			this.y = app.height - this.radius;
+			this.y_speed = -v_init*Math.sin(theta);
 		}
 		else if (heating == "hot"){
 			v_init += 0.5;
