@@ -216,8 +216,8 @@ let app = new Vue({
 			// clears the rectangle that the particle currently occupies. Supposed to save more computing power
 			// uses radius variable to ensure future changeability, could also potentially be linked in vue to mass and stuff to provide more variables to change
 			this.particles.forEach(p => context.clearRect(p.x-(radius+1), p.y-(radius+1), 2*radius+2, 2*radius+2));
-			this.particles.forEach(p => p.update(this.heating));
 			this.particles.forEach((p,i) => p.bounce(p, i));
+			this.particles.forEach(p => p.update(this.heating));
 			if(this.track_particle == true){
 				// draws the colorful circles as a trail
 				context2.beginPath();
@@ -239,7 +239,7 @@ let app = new Vue({
 			this.canvasRender();
 		},
 		animate: function(thing){
-			// animation frame is  native and it allows for the animation to stop when focus is on another area
+			// animation frame is native and it allows for the animation to stop when focus is on another area
 			let animation = window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
 			window.mozRequestAnimationFrame ||
@@ -247,9 +247,6 @@ let app = new Vue({
 				window.setTimeout(callback, 1000/this.fps);
 			};
 			return animation(thing);
-		},
-		sortData: function(){
-			let sortedData = [];
 		},
 		maxwellDist: function(velocity){
 			/* Maxwell Boltzman graph: */
