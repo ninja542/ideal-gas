@@ -1,3 +1,4 @@
+// @flow
 // variable definitions here
 // d3 things here:
 let margin = { top: 10, right: 10, bottom: 40, left: 40 },
@@ -194,6 +195,14 @@ let app = new Vue({
 			let newMap = this.particles.map((item) => totalVelocity(item.x_speed, item.y_speed));
 			return newMap;
 		},
+		calculatedTemp: function(){
+			// PV = nRT equation
+			// T = PV/nR
+			let n = this.particlenum / 6.02e+23;
+			let temperature = this.measuredPressure * this.width * this.height;
+			temperature = temperature / (n * R);
+			return temperature;
+		}
 	},
 	methods: {
 		adjustParticles: function(){
@@ -212,7 +221,7 @@ let app = new Vue({
 			this.particles.forEach(p => p.draw());
 		},
 		update: function(){
-			tempxScale = this.xScale();
+			let tempxScale = this.xScale();
 			// clears the rectangle that the particle currently occupies. Supposed to save more computing power
 			// uses radius variable to ensure future changeability, could also potentially be linked in vue to mass and stuff to provide more variables to change
 			this.particles.forEach(p => context.clearRect(p.x-(radius+1), p.y-(radius+1), 2*radius+2, 2*radius+2));
@@ -335,6 +344,6 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
-function placeParticles(){
+function placeParticles(particle){
 
 }

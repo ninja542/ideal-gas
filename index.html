@@ -37,14 +37,15 @@
 					<button @mousedown="heating = 'cold'" @mouseup="lock!=true ? heating = 'none' : null">Remove Heat</button>
 				</div>
 			<div>
-				<label> Track one particle? </label>
-				<input type="checkbox" v-model="track_particle">
+				<label for="track"> Track one particle? </label>
+				<input type="checkbox" v-model="track_particle" id="track">
 				<p> Color Key: </p>
 				<img src="https://raw.githubusercontent.com/d3/d3-scale-chromatic/master/img/rainbow.png" width="275px">
 				<p id="key"> 0 1 2 3 4 5 6 7 8+</p>
 				<p>Speed in pixels per second </p>
-				<p> Temperature: {{measuredTemp.toFixed(2)}} Kelvin </p>
-				<p> Pressure: {{measuredPressure.toPrecision(4)}} Pascals </p>
+				<p> Measured Temperature: {{measuredTemp.toFixed(4)}} Kelvin </p>
+				<p> Calculated Temperature from PV=nRT using Measured Pressure: {{calculatedTemp.toFixed(4)}} Kelvin</p>
+				<p> Measured Pressure: {{measuredPressure.toPrecision(4)}} Pascals </p>
 			</div>
 		</div>
 		<div id="border" v-bind:style="[plate, dimension]"></div>
