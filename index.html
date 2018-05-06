@@ -46,6 +46,10 @@
 				<p> Measured Temperature: {{measuredTemp.toFixed(4)}} Kelvin </p>
 				<p> Calculated Temperature from PV=nRT using Measured Pressure: {{calculatedTemp.toFixed(4)}} Kelvin</p>
 				<p> Measured Pressure: {{measuredPressure.toPrecision(4)}} Pascals </p>
+				<p> Notes: <button v-on:click="show = !show">{{show ? "Hide" : "Show"}}</button></p>
+				<p v-show="show"> I know the temperature does not consistently increase while adding more molecules. I'm trying to fix that. <br>
+				The lock button next to the heating and cooling buttons "lock" the heating/cooling so you don't have to continuously hold the buttons down.
+				</p>
 			</div>
 		</div>
 		<div id="border" v-bind:style="[plate, dimension]"></div>

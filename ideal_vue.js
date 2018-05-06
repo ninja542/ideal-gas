@@ -160,6 +160,7 @@ let app = new Vue({
 		fps: 60,
 		heating: "none",
 		lock: false,
+		show: false,
 	},
 	computed: {
 		plate: function(){
