@@ -28,10 +28,10 @@ const R = 8.314;
 const k = R / 6.02e+23;
 
 // d3 stuff
-var xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
-var xAxis = d3.axisBottom(xScale);
-var yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
-var yAxis = d3.axisLeft(yScale);
+let xScale = d3.scaleLinear().domain([0, 5]).range([0, graphwidth]);
+let xAxis = d3.axisBottom(xScale);
+let yScale = d3.scaleLinear().domain([0, 1]).range([graphheight, 0]);
+let yAxis = d3.axisLeft(yScale);
 svg.append("g").call(yAxis);
 svg.append("g").call(xAxis).attr("transform", "translate(" + 0 + ", " + yScale(0) + ")").attr("class", "xAxis");
 svg.append("path").attr("stroke", "black").attr("stroke-width", 1).attr("fill", "none").attr("class", "probability");
@@ -244,10 +244,6 @@ let app = new Vue({
 				d3.select(".velocity").attr("visibility", "hidden");
 			}
 		},
-		step: function(){
-			this.update();
-			this.canvasRender();
-		},
 		animate: function(thing){
 			// animation frame is native and it allows for the animation to stop when focus is on another area
 			let animation = window.requestAnimationFrame ||
@@ -345,6 +341,10 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
-function placeParticles(particle){
+function particleObstruct(particle){
+	for(let i = 0; i < this.particlenum; i++){
+		if(particle.x < app.particles[i].x + radius || particle.x > app.particles[i].x - radius){
 
+		}
+	}
 }
