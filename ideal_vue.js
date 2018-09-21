@@ -213,8 +213,16 @@ let app = new Vue({
 			}
 			else if(this.particlenum > this.particles.length){
 				for(let i = this.particles.length; i < this.particlenum; i++){
-					this.particles.push(new Ball(Math.floor(Math.random()*this.width), Math.floor(Math.random()*this.height)));
-					// pushes new particles in random places, need a better algorithm to avoid particles spawning within each other.
+					tempx = Math.floor(Math.random()*this.width);
+					tempy = Math.floor(Math.random()*this.height);
+					while(particleObstruct(tempx, tempy) == false){
+						tempx = Math.floor(Math.random()*this.width);
+						tempy = Math.floor(Math.random()*this.height);
+					}
+					this.particles.push(new Ball(tempx, tempy));
+					// pushes new particles in random places, but the function particleObstruct makes sure that the random place isn't going to touch another particle
+					// kinda inefficient
+					// don't know how much it actually helps
 				}
 			}
 		},
@@ -345,6 +353,21 @@ function particleObstruct(particle){
 	for(let i = 0; i < this.particlenum; i++){
 		if(particle.x < app.particles[i].x + radius || particle.x > app.particles[i].x - radius){
 
+		}
+	}
+}
+function particleObstruct(x, y){
+	for(let i = 0; i < this.particlenum; i++){
+		if(x < app.particles[i].x + radius && x > app.particles[i].x - radius){
+			if(y < app.particles[i].y + radius && y > app.particles[i].y - radius){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		else{
+			return false;
 		}
 	}
 }
