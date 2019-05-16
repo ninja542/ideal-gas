@@ -1,4 +1,3 @@
-// @flow
 // variable definitions here
 // d3 things here:
 let margin = { top: 10, right: 10, bottom: 40, left: 40 },
@@ -122,28 +121,31 @@ Ball.prototype.update = function(heating){
 // separate function so that the particles can check for bouncing after the update, also it was easier to separate updating and bouncing from each other for better coding.
 Ball.prototype.bounce = function(p, i){
 	for (i; i<app.particles.length-1; i++){
-		if (Math.pow(p.x-app.particles[i+1].x, 2)+Math.pow(p.y-app.particles[i+1].y, 2) < (Math.pow(2*radius, 2)+0.1)){ // no Math.sqrt to save computing power, checks if particles are touching. [i+1] is included so that if there is no valid particle at [i+1] it will not be counted, unlike before where i+1 was in the for loop, and caused strange problems where vectors would become undefined
-			// still has weird bumping behavior when particles are cooled a lot
-			let a_i_speed = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // second particle
-			let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
-			let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
-			let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
-			tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
-			let projvector = tempvector.dotProduct(collision);
-			projvector = projvector / collision.magnitude();
-			collision.scale(projvector);
-			/* LONG MATH EXPLANATION
-			Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
-			After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
-			Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
-			Which is what happens in the next two lines */
-			b_i_speed.add(collision);
-			a_i_speed.subtract(collision);
-			// setting the speeds of the particles after doing too much math
-			p.x_speed = b_i_speed.x;
-			p.y_speed = b_i_speed.y;
-			app.particles[i+1].x_speed = a_i_speed.x;
-			app.particles[i+1].y_speed = a_i_speed.y;
+		// no Math.sqrt to save computing power, checks if particles are touching. [i+1] is included so that if there is no valid particle at [i+1] it will not be counted, unlike before where i+1 was in the for loop, and caused strange problems where vectors would become undefined
+		if (Math.abs(p.x - app.particles[i+1].x) < 20 || Math.abs(p.y - app.particles[i+1].y) < 20){
+			if (Math.pow(p.x-app.particles[i+1].x, 2)+Math.pow(p.y-app.particles[i+1].y, 2) < (Math.pow(2*radius, 2)+0.1)){
+				// still has weird bumping behavior when particles are cooled a lot
+				let a_i_speed = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // second particle
+				let b_i_speed = new Vector(p.x_speed, p.y_speed); // first particle
+				let collision = new Vector(p.x-app.particles[i+1].x, p.y-app.particles[i+1].y);
+				let tempvector = new Vector(app.particles[i+1].x_speed, app.particles[i+1].y_speed); // temporary vector so that the initial vector is untouched
+				tempvector.subtract(b_i_speed); // to put it in the b_i_speed particle frame of reference
+				let projvector = tempvector.dotProduct(collision);
+				projvector = projvector / collision.magnitude();
+				collision.scale(projvector);
+				/* LONG MATH EXPLANATION
+				Getting the projection vector so that we know what components make up the first velocity that are parallel and perpendicular to the collision
+				After getting the components of the first velocity, we can subtract the parallel component from the first velocity and add it to the second velocity
+				Because both particles have equal mass, the velocity that is in the parallel direction of the first particle transfers completely over to the next particle
+				Which is what happens in the next two lines */
+				b_i_speed.add(collision);
+				a_i_speed.subtract(collision);
+				// setting the speeds of the particles after doing too much math
+				p.x_speed = b_i_speed.x;
+				p.y_speed = b_i_speed.y;
+				app.particles[i+1].x_speed = a_i_speed.x;
+				app.particles[i+1].y_speed = a_i_speed.y;
+			}
 		}
 	}
 };
@@ -179,8 +181,8 @@ let app = new Vue({
 			}
 		},
 		dimension: function(){ // needed to make sure that canvas/the border changes size
-			return {width: this.width,
-							height: this.height};
+					return {width: this.width,
+									height: this.height};
 		},
 		measuredTemp: function(){
 			let totalKE = this.totalVelList.reduce((total, amount) => total + 0.5 * Math.pow(amount, 2) * mass, 0);
@@ -215,10 +217,6 @@ let app = new Vue({
 				for(let i = this.particles.length; i < this.particlenum; i++){
 					tempx = Math.floor(Math.random()*this.width);
 					tempy = Math.floor(Math.random()*this.height);
-					while(particleObstruct(tempx, tempy) == false){
-						tempx = Math.floor(Math.random()*this.width);
-						tempy = Math.floor(Math.random()*this.height);
-					}
 					this.particles.push(new Ball(tempx, tempy));
 					// pushes new particles in random places, but the function particleObstruct makes sure that the random place isn't going to touch another particle
 					// kinda inefficient
@@ -348,26 +346,4 @@ function randNeg(){ // needed to generate negative sign randomly for more intere
 }
 function totalVelocity(x, y){ // to make code easier to read
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-}
-function particleObstruct(particle){
-	for(let i = 0; i < this.particlenum; i++){
-		if(particle.x < app.particles[i].x + radius || particle.x > app.particles[i].x - radius){
-
-		}
-	}
-}
-function particleObstruct(x, y){
-	for(let i = 0; i < this.particlenum; i++){
-		if(x < app.particles[i].x + radius && x > app.particles[i].x - radius){
-			if(y < app.particles[i].y + radius && y > app.particles[i].y - radius){
-				return true;
-			}
-			else{
-				return false;
-			}
-		}
-		else{
-			return false;
-		}
-	}
 }
